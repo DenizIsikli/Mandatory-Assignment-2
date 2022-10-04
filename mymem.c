@@ -192,7 +192,7 @@ int mem_free()
  * Creating a new list
  * If the block is not allocated and the size of the current element is bigger than the max byte
  * Add the size to max_byt
- * o to the next element in the list
+ * Go to the next element in the list
  * Return the amount of non allocated bytes
  */
 int mem_largest_free()
@@ -209,6 +209,15 @@ int mem_largest_free()
 }
 
 /* Number of free blocks smaller than "size" bytes. */
+
+/*
+ * Creating an Integer for the non allocated blocks that are smaller than the size parameter
+ * Creating a new list
+ * If the block is not allocated and the size of the current element is smaller than the size parameter
+ * Add 1 to non_alloced_blocks_smaller
+ * Go to the next element in the list
+ * Return the amount of non allocated blocks that are smaller than the size parameter
+ */
 int mem_small_free(int size)
 {
     int non_alloced_blocks_smaller = 0;
