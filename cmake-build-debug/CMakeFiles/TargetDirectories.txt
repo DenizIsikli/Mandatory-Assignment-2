@@ -1,0 +1,3 @@
+C:/Users/deniz/CLionProjects/Assignment 2 - Operating System/cmake-build-debug/CMakeFiles/Assignment_2___Operating_System.dir
+C:/Users/deniz/CLionProjects/Assignment 2 - Operating System/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/deniz/CLionProjects/Assignment 2 - Operating System/cmake-build-debug/CMakeFiles/rebuild_cache.dir
