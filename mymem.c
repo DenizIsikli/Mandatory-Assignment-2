@@ -65,12 +65,12 @@ void initmem(strategies strategy, size_t sz)
      * Also free the memory of head as well once the for loop is over
     */
     //struct memoryList *temp;
-    struct memoryList *temp_list = temp;
+    struct memoryList *trav = temp;
 
-    for(temp_list = temp_list->head; temp_list->next != NULL; temp_list++) {
-        free(temp_list->last);
+    for(trav = trav->head; trav->next != NULL; trav++) {
+        free(trav->last);
     }
-    free(temp_list);
+    free(trav);
 
 	myMemory = malloc(sz);
 	
@@ -132,13 +132,14 @@ void myfree(void* block)
 int mem_holes()
 {
     int free_space = 0;
-    struct memoryList *temp_list = temp;
+    struct memoryList *trav = temp;
 
-    if(temp_list->head->alloc == 0) {
-        free_space++;
+    if(trav->head != NULL) {
+        while (trav->head->alloc == 0) {
+            free_space++;
+        }
+        trav->head = trav->head->next;
     }
-    temp_list->head = temp_list->head->next;
-
     return free_space;
 }
 
@@ -154,13 +155,14 @@ int mem_holes()
 int mem_allocated()
 {
     int alloced_byte = 0;
-    struct memoryList *temp_list = temp;
+    struct memoryList *trav = temp;
 
-    if(temp_list->head->alloc == 1) {
-        alloced_byte++;
+    if(trav->head != NULL) {
+        while (trav->head->alloc == 1) {
+            alloced_byte++;
+        }
+        trav->head = trav->head->next;
     }
-    temp_list->head = temp_list->head->next;
-
 	return alloced_byte;
 }
 
@@ -176,13 +178,14 @@ int mem_allocated()
 int mem_free()
 {
     int non_alloced_byte = 0;
-    struct memoryList *temp_list = temp;
+    struct memoryList *trav = temp;
 
-    if(temp_list->head->alloc == 1) {
-        non_alloced_byte += temp_list->head->size;
+    if(trav->head != NULL) {
+        while (trav->head->alloc == 1) {
+            non_alloced_byte += trav->head->size;
+        }
+        trav->head = trav->head->next;
     }
-    temp_list->head = temp_list->head->next;
-
 	return non_alloced_byte;
 }
 
@@ -199,13 +202,14 @@ int mem_free()
 int mem_largest_free()
 {
     int max_byte = 0;
-    struct memoryList *temp_list = temp;
+    struct memoryList *trav = temp;
 
-    if(temp_list->head->alloc == 0 && temp_list->head->size > max_byte) {
-        max_byte = temp_list->head->size;
+    if(trav->head != NULL) {
+        while (trav->head->alloc == 0 && trav->head->size > max_byte) {
+            max_byte = trav->head->size;
+        }
+        trav->head = trav->head->next;
     }
-    temp_list->head = temp_list->head->next;
-
 	return max_byte;
 }
 
@@ -217,17 +221,19 @@ int mem_largest_free()
  * If the block is not allocated and the size of the current element is smaller than the size parameter
  * Add 1 to non_alloced_blocks_smaller
  * Go to the next element in the list
- * Return the amount of non allocated blocks that are smaller than the size parameter
+ * Return the amount of non allocated blocks that are smaller than or equal to size parameter
  */
 int mem_small_free(int size)
 {
     int non_alloced_blocks_smaller = 0;
-    struct memoryList *temp_list = temp;
+    struct memoryList *trav = temp;
 
-    if(temp_list->head->alloc == 0 && temp_list->head->size < size) {
-        non_alloced_blocks_smaller++;
+    if(trav->head != NULL) {
+        while (trav->head->alloc == 0 && trav->head->size <= size) {
+            non_alloced_blocks_smaller++;
+        }
+        trav->head = trav->head->next;
     }
-    temp_list->head = temp_list->head->next;
 
 	return non_alloced_blocks_smaller;
 }       
@@ -308,10 +314,10 @@ strategies strategyFromString(char * strategy)
 /* Use this function to print out the current contents of memory. */
 void print_memory()
 {
-    struct memoryList *temp_list = temp;
+    struct memoryList *trav = temp;
 
-    for(temp_list = temp_list->head; temp_list < temp_list->next != NULL; temp_list++) {
-        printf("Bytes: %d", temp_list->size);
+    for(trav = trav->head; trav < trav->next != NULL; trav++) {
+        printf("Bytes: %d", trav->size);
     }
 }
 
