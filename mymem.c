@@ -13,9 +13,6 @@
 struct memoryList
 {
   // doubly-linked list
-
-  // Added head inside of the doubly linked list, since it's used so much throughout the file
-  //struct memoryList *head;
   struct memoryList *last;
   struct memoryList *next;
 
