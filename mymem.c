@@ -109,6 +109,8 @@ void *mymalloc(size_t requested)
 void myfree(void* block)
 {
     struct memoryList *trav = head;
+
+    //Question: Should temp be implemented like this?
     struct memoryList *temp = head;
 
     if(trav == NULL) {
@@ -125,6 +127,7 @@ void myfree(void* block)
             //Sets the size of the last node equal to the size of the current node
             trav->last->size += trav->size;
             temp = trav;
+            //Question: Correct or not?
             if(trav->next != NULL) {
                 trav->next->last = trav->last;
             }
@@ -136,6 +139,7 @@ void myfree(void* block)
             //Sets the size of the last node equal to the size of the current node
             trav->last->size += trav->size;
             temp = trav->next;
+            //Question: Correct or not
             if(trav->next->next != NULL) {
                 trav->next->next->last = trav;
             }
