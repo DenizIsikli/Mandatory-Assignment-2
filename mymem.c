@@ -59,7 +59,6 @@ void initmem(strategies strategy, size_t sz)
     /*
      * Creating a new list
      * For each memory that isn't NULL, will be freed by going to the "next" in the list and free the "last" in the list
-     * Also free the memory of head as well once the for loop is over
     */
     //struct memoryList *head;
     if(head != NULL) {
