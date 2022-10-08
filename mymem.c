@@ -66,6 +66,7 @@ void initmem(strategies strategy, size_t sz)
         for (trav = head; trav->next != NULL; trav = trav->next) {
             free(trav->last);
         }
+        free(trav);
     }
 	myMemory = malloc(sz);
 	
@@ -74,6 +75,7 @@ void initmem(strategies strategy, size_t sz)
     head->size = sz;
     head->alloc = 0;
     head->ptr = myMemory;
+    head->last = head->next = NULL;
 }
 
 /* Allocate a block of memory with the requested size.
@@ -106,6 +108,40 @@ void *mymalloc(size_t requested)
 /* Frees a block of memory previously allocated by mymalloc. */
 void myfree(void* block)
 {
+    struct memoryList *trav = head;
+    struct memoryList *temp = head;
+
+    if(trav == NULL) {
+        return;
+    } else {
+        while (trav->ptr != block) {
+            trav = trav->next;
+        }
+        trav->alloc = 0;
+
+        //The line belows checks if the node behind is not NULL, and not allocated (free of space)
+        if((trav->last != NULL) && (trav->last->alloc == 0)) {
+
+            //Sets the size of the last node equal to the size of the current node
+            trav->last->size += trav->size;
+            temp = trav;
+            if(trav->next != NULL) {
+                trav->next->last = trav->last;
+            }
+            free(temp);
+        }
+        //The line belows checks if the node in front is not NULL, and not allocated (free of space)
+        if((trav->next != NULL) && (trav->next->alloc == 0)) {
+
+            //Sets the size of the last node equal to the size of the current node
+            trav->last->size += trav->size;
+            temp = trav->next;
+            if(trav->next->next != NULL) {
+                trav->next->next->last = trav;
+            }
+            free(temp);
+        }
+    }
 	return;
 }
 
