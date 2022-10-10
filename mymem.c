@@ -108,10 +108,7 @@ void *mymalloc(size_t requested)
 /* Frees a block of memory previously allocated by mymalloc. */
 void myfree(void* block)
 {
-    struct memoryList *trav = head;
-
-    //Question: Should temp be implemented like this?
-    struct memoryList *temp = head;
+    struct memoryList *trav = head, *temp;
 
     if(trav == NULL) {
         return;
