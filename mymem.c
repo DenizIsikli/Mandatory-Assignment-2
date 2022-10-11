@@ -86,13 +86,27 @@ void initmem(strategies strategy, size_t sz)
 
 void *mymalloc(size_t requested)
 {
+    size_t req = requested;
 	assert((int)myStrategy > 0);
+
+    struct memoryList *trav = head, *temp;
 	
 	switch (myStrategy)
 	  {
 	  case NotSet: 
 	            return NULL;
 	  case First:
+          while(trav->size < req || trav->alloc != 1) {
+              trav = trav->next;
+          }
+
+          temp = malloc(sizeof(struct memoryList));
+
+          if(trav->next > req) {
+              temp->last = trav; //comment on what it does - dont know yet
+              temp->next = trav->next; //comment on what it does - dont know yet
+
+          }
 	            return NULL;
 	  case Best:
 	            return NULL;
