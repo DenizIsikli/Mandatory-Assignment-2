@@ -100,14 +100,24 @@ void *mymalloc(size_t requested)
               trav = trav->next;
           }
 
-          temp = malloc(sizeof(struct memoryList));
 
           if(trav->next > req) {
-              temp->last = trav; //comment on what it does - dont know yet
-              temp->next = trav->next; //comment on what it does - dont know yet
+              temp = malloc(sizeof(struct memoryList));
+              temp->last = trav; //explain line
+              temp->next = trav->next; //explain line
+              if(trav->next != NULL) {
+                  trav->next->last = temp; //explain line
+              }
+              trav->next = temp;
 
+              temp->size = trav->size - req;
+              temp->ptr = trav->ptr + req;
+
+              temp->alloc = 0; //why should temp contain 0 - comment
+              trav->alloc = 1; //why should trav contain 1 - comment
+              trav->size = req;
           }
-	            return NULL;
+          return trav->ptr;
 	  case Best:
 	            return NULL;
 	  case Worst:
