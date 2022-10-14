@@ -87,21 +87,21 @@ void initmem(strategies strategy, size_t sz)
 void *mymalloc(size_t requested)
 {
     size_t req = requested;
-	assert((int)myStrategy > 0);
+    assert((int)myStrategy > 0);
 
-    struct memoryList *trav = head, *temp;
-	
+    int best_node_size;
+    struct memoryList *trav = head, *temp, *best_node;
+
 	switch (myStrategy)
 	  {
 	  case NotSet: 
 	            return NULL;
 	  case First:
-          while(trav->size < req || trav->alloc != 1) {
+          while(trav->size < req || trav->alloc == 1) {
               trav = trav->next;
           }
 
-
-          if(trav->next > req) {
+          if(trav->size > req) {
               temp = malloc(sizeof(struct memoryList));
               temp->last = trav; //explain line
               temp->next = trav->next; //explain line
@@ -119,11 +119,78 @@ void *mymalloc(size_t requested)
           }
           return trav->ptr;
 	  case Best:
-	            return NULL;
+          best_node_size = -1;
+          best_node = NULL;
+
+          while(trav != NULL) {
+              if(trav->size >= req && trav->alloc == 0) {
+                  if(best_node_size == -1) {
+                      best_node_size = trav->size;
+                      best_node = trav;
+                  }
+              }
+              trav = trav->next;
+          }
+
+          trav = best_node;
+
+          if(trav->size > req) {
+              temp = malloc(sizeof(struct memoryList));
+              temp->last = trav;
+              temp->next = trav->next;
+              if(trav->next != NULL) {
+                  trav->next->last = temp;
+              }
+              trav->next = temp;
+
+              temp->size = trav->size - req;
+              temp->ptr = trav->ptr + req;
+
+              temp->alloc = 0;
+              trav->alloc = 1;
+              trav->size = req;
+          }
+          return trav->ptr;
+
 	  case Worst:
-	            return NULL;
+
+          if(trav->size > req) {
+              temp = malloc(sizeof(struct memoryList));
+              temp->last = trav;
+              temp->next = trav->next;
+              if(trav->next != NULL) {
+                  trav->next->last = temp;
+              }
+              trav->next = temp;
+
+              temp->size = trav->size - req;
+              temp->ptr = trav->ptr + req;
+
+              temp->alloc = 0;
+              trav->alloc = 1;
+              trav->size = req;
+          }
+          return trav->ptr;
+
 	  case Next:
-	            return NULL;
+
+          if(trav->size > req) {
+              temp = malloc(sizeof(struct memoryList));
+              temp->last = trav;
+              temp->next = trav->next;
+              if(trav->next != NULL) {
+                  trav->next->last = temp;
+              }
+              trav->next = temp;
+
+              temp->size = trav->size - req;
+              temp->ptr = trav->ptr + req;
+
+              temp->alloc = 0;
+              trav->alloc = 1;
+              trav->size = req;
+          }
+          return trav->ptr;
 	  }
 	return NULL;
 }
@@ -132,7 +199,8 @@ void *mymalloc(size_t requested)
 /* Frees a block of memory previously allocated by mymalloc. */
 void myfree(void* block)
 {
-    struct memoryList *trav = head, *temp;
+    struct memoryList *trav = head;
+    struct memoryList *temp = head;
 
     if(trav == NULL) {
         return;
