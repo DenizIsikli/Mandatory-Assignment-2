@@ -97,7 +97,7 @@ void *mymalloc(size_t requested)
 	  case NotSet: 
 	            return NULL;
 	  case First:
-          while(trav->size < req || trav->alloc == 1) {
+          while(trav != NULL && trav->size < req || trav->alloc == 1) {
               trav = trav->next;
           }
 
@@ -119,12 +119,21 @@ void *mymalloc(size_t requested)
           }
           return trav->ptr;
 	  case Best:
+          //Assigning two variables to update for the new best size and node that passes the if-statements condition
           best_node_size = -1;
           best_node = NULL;
 
+          /*
+           * Check whether the current node is not NULL
+           * Check whether the size of the current node is bigger than the request and if the current node has been allocated
+           * If the best_node_size is equal to -1
+           * Assign the size of the current node to the best_node_size
+           * Assign the best_node to the current node
+           * Continue to assign all the non-allocated nodes which are bigger than the request until trav equals NULL
+          */
           while(trav != NULL) {
               if(trav->size >= req && trav->alloc == 0) {
-                  if(best_node_size == -1) {
+                  if (best_node_size == -1) {
                       best_node_size = trav->size;
                       best_node = trav;
                   }
@@ -132,6 +141,7 @@ void *mymalloc(size_t requested)
               trav = trav->next;
           }
 
+          //Reassigning trav to best_node since best_node was assigned to trav in above code (keeping the code below identical for each strategy)
           trav = best_node;
 
           if(trav->size > req) {
