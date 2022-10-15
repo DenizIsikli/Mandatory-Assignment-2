@@ -119,7 +119,7 @@ void *mymalloc(size_t requested)
           }
           return trav->ptr;
 	  case Best:
-          //Assigning two variables to update for the new best size and node that passes the if-statements condition
+          //Assigning two variables to update for the new best size and node
           best_node_size = -1;
           best_node = NULL;
 
@@ -144,6 +144,10 @@ void *mymalloc(size_t requested)
           //Reassigning trav to best_node since best_node was assigned to trav in above code (keeping the code below identical for each strategy)
           trav = best_node;
 
+          if(trav == NULL) {
+              return NULL;
+          }
+
           if(trav->size > req) {
               temp = malloc(sizeof(struct memoryList));
               temp->last = trav;
@@ -163,6 +167,23 @@ void *mymalloc(size_t requested)
           return trav->ptr;
 
 	  case Worst:
+          //Assigning two variables to update for the new best size and node
+          best_node_size = 0;
+          best_node = NULL;
+
+          while(trav != NULL) {
+              if(trav->alloc == 0 && trav->size > best_node_size) {
+                  best_node_size = trav->size;
+                  best_node = trav;
+              }
+              trav = trav->next;
+          }
+
+          trav = best_node;
+
+          if(trav == NULL) {
+              return NULL;
+          }
 
           if(trav->size > req) {
               temp = malloc(sizeof(struct memoryList));
@@ -223,7 +244,7 @@ void myfree(void* block)
         //The line belows checks if the node behind is not NULL, and not allocated (free of space)
         if((trav->last != NULL) && (trav->last->alloc == 0)) {
 
-            //Sets the size of the last node equal to the size of the current node
+            //Adds the size of the current node to the size of the last node
             trav->last->size += trav->size;
             temp = trav;
             //Question: Correct or not?
@@ -235,7 +256,7 @@ void myfree(void* block)
         //The line belows checks if the node in front is not NULL, and not allocated (free of space)
         if((trav->next != NULL) && (trav->next->alloc == 0)) {
 
-            //Sets the size of the last node equal to the size of the current node
+            //Adds the size of the current node to the size of the last node
             trav->last->size += trav->size;
             temp = trav->next;
             //Question: Correct or not
