@@ -101,10 +101,13 @@ void *mymalloc(size_t requested)
               trav = trav->next;
           }
 
+          /*
+           *
+           */
           if(trav->size > req) {
-              temp = malloc(sizeof(struct memoryList));
-              temp->last = trav; //explain line
-              temp->next = trav->next; //explain line
+              temp = malloc(sizeof(struct memoryList)); //Assigns the size of the memoryList to temp (temporary dynamic list)
+              temp->last = trav; //Assigns the current node to the previous node of temp list
+              temp->next = trav->next; //Assigns the next node of trav list to the next node of temp list
               if(trav->next != NULL) {
                   trav->next->last = temp; //explain line
               }
@@ -150,8 +153,8 @@ void *mymalloc(size_t requested)
 
           if(trav->size > req) {
               temp = malloc(sizeof(struct memoryList));
-              temp->last = trav;
-              temp->next = trav->next;
+              temp->last = trav; //Assigns the current node to the previous node of temp list
+              temp->next = trav->next; //Assigns the next node of trav list to the next node of temp list
               if(trav->next != NULL) {
                   trav->next->last = temp;
               }
@@ -187,8 +190,8 @@ void *mymalloc(size_t requested)
 
           if(trav->size > req) {
               temp = malloc(sizeof(struct memoryList));
-              temp->last = trav;
-              temp->next = trav->next;
+              temp->last = trav; //Assigns the current node to the previous node of temp list
+              temp->next = trav->next; //Assigns the next node of trav list to the next node of temp list
               if(trav->next != NULL) {
                   trav->next->last = temp;
               }
@@ -207,8 +210,8 @@ void *mymalloc(size_t requested)
 
           if(trav->size > req) {
               temp = malloc(sizeof(struct memoryList));
-              temp->last = trav;
-              temp->next = trav->next;
+              temp->last = trav; //Assigns the current node to the previous node of temp list
+              temp->next = trav->next; //Assigns the next node of trav list to the next node of temp list
               if(trav->next != NULL) {
                   trav->next->last = temp;
               }
