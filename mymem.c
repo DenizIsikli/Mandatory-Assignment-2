@@ -289,8 +289,8 @@ void myfree(void* block)
  */
 int mem_holes()
 {
-    int free_space = 0;
     struct memoryList *trav = head;
+    int free_space = 0;
 
     while(trav != NULL) {
         if (trav->alloc == 0) {
@@ -312,8 +312,8 @@ int mem_holes()
  */
 int mem_allocated()
 {
-    int alloced_byte = 0;
     struct memoryList *trav = head;
+    int alloced_byte = 0;
 
     while(trav != NULL) {
         if (trav->alloc == 1) {
@@ -335,8 +335,8 @@ int mem_allocated()
  */
 int mem_free()
 {
-    int non_alloced_byte = 0;
     struct memoryList *trav = head;
+    int non_alloced_byte = 0;
 
     while(trav != NULL) {
         if (trav->alloc == 1) {
@@ -359,8 +359,8 @@ int mem_free()
  */
 int mem_largest_free()
 {
-    int max_byte = 0;
     struct memoryList *trav = head;
+    int max_byte = 0;
 
     while(trav != NULL) {
         if (trav->alloc == 0 && trav->size > max_byte) {
@@ -383,8 +383,8 @@ int mem_largest_free()
  */
 int mem_small_free(int size)
 {
-    int non_alloced_blocks_smaller = 0;
     struct memoryList *trav = head;
+    int non_alloced_blocks_smaller = 0;
 
     while(trav != NULL) {
         if (trav->alloc == 0 && trav->size <= size) {
@@ -519,4 +519,9 @@ void try_mymem(int argc, char **argv) {
 	print_memory();
 	print_memory_status();
 	
+}
+
+int main() {
+    try_mymem(First, **b);
+    return 0;
 }
