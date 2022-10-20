@@ -147,14 +147,14 @@ run_one_test (stats_t * stats, testentry_t * test, int redirect_stdouterr,int ar
   printf ("%2d.%-20s:", stats->ran, test->name);
 
   fflush(stdout);
-	test_result=invoke_test_with_timelimit(test,redirect_stdouterr,argc,argv);
+  test_result=invoke_test_with_timelimit(test,redirect_stdouterr,argc,argv);
 
 
-if (test_result == 0)
-    {
-      stats->failed--;
-      stats->passed++;
-    }
+  if (test_result == 0)
+  {
+    stats->failed--;
+    stats->passed++;
+  }
   printf(":%s\n", (test_result == 0 ? "pass" : test_result ==
 	   2 ? "TIMEOUT * " : "FAIL *"));
 	return test_result!=0;
