@@ -127,12 +127,12 @@ void myfree(void* block)
     void* ptr = block;
     struct memoryList *trav = head, *temp = head;
     //Check does block exist
-    if(head == NULL) {
+    if(trav->ptr == NULL) {
         return;
     }
 
     //Check is block free
-    if(trav != NULL && trav->alloc == 0) {
+    if(trav.ptr != NULL && trav->alloc == 0) {
     
     }
 
