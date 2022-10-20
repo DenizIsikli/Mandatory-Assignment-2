@@ -13,7 +13,7 @@
 struct memoryList
 {
   // doubly-linked list
-  struct memoryList *last;
+  struct memoryList *prev;
   struct memoryList *next;
 
   int size;            // How many bytes in this block?
@@ -29,8 +29,12 @@ size_t mySize;
 void *myMemory = NULL;
 
 static struct memoryList *head;
-static struct memoryList *next;
+static struct memoryList *next_fit;
 
+struct memoryList *stratFirst();
+struct memoryList *stratBest();
+struct memoryList *stratWorst();
+struct memoryList *stratNext();
 
 /* initmem must be called prior to mymalloc and myfree.
 
@@ -58,24 +62,27 @@ void initmem(strategies strategy, size_t sz)
 	/* TODO: release any other memory you were using for bookkeeping when doing a re-initialization! */
     /*
      * Creating a new list
-     * For each memory that isn't NULL, will be freed by going to the "next" in the list and free the "last" in the list
+     * For each memory that isn't NULL, will be freed by going to the "next" in the list and free the "prev" in the list
     */
     //struct memoryList *head;
-    if(head != NULL) {
-        struct memoryList *trav;
-        for (trav = head; trav->next != NULL; trav = trav->next) {
-            free(trav->last);
-        }
+    struct memoryList *trav;
+    
+    while(head != NULL) { 
+        trav = head;
+        head = head->next;
+
         free(trav);
     }
 	myMemory = malloc(sz);
 	
 	/* TODO: Initialize memory management structure. */
     head = malloc(sizeof(struct memoryList));
+    next_fit = head;
     head->size = sz;
     head->alloc = 0;
     head->ptr = myMemory;
-    head->last = head->next = NULL;
+    head->prev = NULL;
+    head->next = NULL;
 }
 
 /* Allocate a block of memory with the requested size.
@@ -89,143 +96,27 @@ void *mymalloc(size_t requested)
     size_t req = requested;
     assert((int)myStrategy > 0);
 
-    int best_node_size;
-    struct memoryList *trav = head, *temp, *best_node;
-
 	switch (myStrategy)
 	  {
 	  case NotSet: 
 	            return NULL;
 	  case First:
-          while(trav != NULL && trav->size < req || trav->alloc == 1) {
-              trav = trav->next;
-          }
-
-          /*
-           *
-           */
-          if(trav->size > req) {
-              temp = malloc(sizeof(struct memoryList)); //Assigns the size of the memoryList to temp (temporary dynamic list)
-              temp->last = trav; //Assigns the current node to the previous node of temp list
-              temp->next = trav->next; //Assigns the next node of trav list to the next node of temp list
-              if(trav->next != NULL) {
-                  trav->next->last = temp; //explain line
-              }
-              trav->next = temp;
-
-              temp->size = trav->size - req;
-              temp->ptr = trav->ptr + req;
-
-              temp->alloc = 0; //why should temp contain 0 - comment
-              trav->alloc = 1; //why should trav contain 1 - comment
-              trav->size = req;
-          }
-          return trav->ptr;
+            trav = stratFirst();
+            break;
 	  case Best:
-          //Assigning two variables to update for the new best size and node
-          best_node_size = -1;
-          best_node = NULL;
-
-          /*
-           * Check whether the current node is not NULL
-           * Check whether the size of the current node is bigger than the request and if the current node has been allocated
-           * If the best_node_size is equal to -1
-           * Assign the size of the current node to the best_node_size
-           * Assign the best_node to the current node
-           * Continue to assign all the non-allocated nodes which are bigger than the request until trav equals NULL
-          */
-          while(trav != NULL) {
-              if(trav->size >= req && trav->alloc == 0) {
-                  if (best_node_size == -1) {
-                      best_node_size = trav->size;
-                      best_node = trav;
-                  }
-              }
-              trav = trav->next;
-          }
-
-          //Reassigning trav to best_node since best_node was assigned to trav in above code (keeping the code below identical for each strategy)
-          trav = best_node;
-
-          if(trav == NULL) {
-              return NULL;
-          }
-
-          if(trav->size > req) {
-              temp = malloc(sizeof(struct memoryList));
-              temp->last = trav; //Assigns the current node to the previous node of temp list
-              temp->next = trav->next; //Assigns the next node of trav list to the next node of temp list
-              if(trav->next != NULL) {
-                  trav->next->last = temp;
-              }
-              trav->next = temp;
-
-              temp->size = trav->size - req;
-              temp->ptr = trav->ptr + req;
-
-              temp->alloc = 0;
-              trav->alloc = 1;
-              trav->size = req;
-          }
-          return trav->ptr;
-
+            trav = stratBest();
+            break;
 	  case Worst:
-          //Assigning two variables to update for the new best size and node
-          best_node_size = 0;
-          best_node = NULL;
-
-          while(trav != NULL) {
-              if(trav->alloc == 0 && trav->size > best_node_size) {
-                  best_node_size = trav->size;
-                  best_node = trav;
-              }
-              trav = trav->next;
-          }
-
-          trav = best_node;
-
-          if(trav == NULL) {
-              return NULL;
-          }
-
-          if(trav->size > req) {
-              temp = malloc(sizeof(struct memoryList));
-              temp->last = trav; //Assigns the current node to the previous node of temp list
-              temp->next = trav->next; //Assigns the next node of trav list to the next node of temp list
-              if(trav->next != NULL) {
-                  trav->next->last = temp;
-              }
-              trav->next = temp;
-
-              temp->size = trav->size - req;
-              temp->ptr = trav->ptr + req;
-
-              temp->alloc = 0;
-              trav->alloc = 1;
-              trav->size = req;
-          }
-          return trav->ptr;
-
+            trav = stratWorst();
+            break;
 	  case Next:
-
-          if(trav->size > req) {
-              temp = malloc(sizeof(struct memoryList));
-              temp->last = trav; //Assigns the current node to the previous node of temp list
-              temp->next = trav->next; //Assigns the next node of trav list to the next node of temp list
-              if(trav->next != NULL) {
-                  trav->next->last = temp;
-              }
-              trav->next = temp;
-
-              temp->size = trav->size - req;
-              temp->ptr = trav->ptr + req;
-
-              temp->alloc = 0;
-              trav->alloc = 1;
-              trav->size = req;
-          }
-          return trav->ptr;
+            trav = stratNext();
+            break;
 	  }
+    if(trav == NULL) {
+        return NULL;
+    }
+    //TODO: Merge free blocks, implement blocks logic
 	return NULL;
 }
 
@@ -233,44 +124,162 @@ void *mymalloc(size_t requested)
 /* Frees a block of memory previously allocated by mymalloc. */
 void myfree(void* block)
 {
-    struct memoryList *trav = head;
-    struct memoryList *temp = head;
-
-    if(trav == NULL) {
+    void* ptr = block;
+    struct memoryList *trav = head, *temp = head;
+    //Check does block exist
+    if(head == NULL) {
         return;
-    } else {
-        while (trav->ptr != block) {
-            trav = trav->next;
-        }
-        trav->alloc = 0;
-
-        //The line belows checks if the node behind is not NULL, and not allocated (free of space)
-        if((trav->last != NULL) && (trav->last->alloc == 0)) {
-
-            //Adds the size of the current node to the size of the last node
-            trav->last->size += trav->size;
-            temp = trav;
-            //Question: Correct or not?
-            if(trav->next != NULL) {
-                trav->next->last = trav->last;
-            }
-            free(temp);
-        }
-        //The line belows checks if the node in front is not NULL, and not allocated (free of space)
-        if((trav->next != NULL) && (trav->next->alloc == 0)) {
-
-            //Adds the size of the current node to the size of the last node
-            trav->last->size += trav->size;
-            temp = trav->next;
-            //Question: Correct or not
-            if(trav->next->next != NULL) {
-                trav->next->next->last = trav;
-            }
-            free(temp);
-        }
     }
+
+    //Check is block free
+    if(trav != NULL && trav->alloc == 0) {
+    
+    }
+
+    
+    //Check is block to the right - then merge 
+    //Check is block to the left - merge
+    //Remember to update next_fit pointer
 	return;
 }
+
+int best_node_size;
+struct memoryList *trav = head, *temp, *best_node;
+
+struct memoryList *stratFirst() {
+    while(trav != NULL && trav->size < req || trav->alloc == 1) {
+        trav = trav->next;
+    }
+
+    /*
+    *
+    */
+    if(trav->size > req) {
+        temp = malloc(sizeof(struct memoryList)); //Assigns the size of the memoryList to temp (temporary dynamic list)
+        temp->prev = trav; //Assigns the current node to the previous node of temp list
+        temp->next = trav->next; //Assigns the next node of trav list to the next node of temp list
+        if(trav->next != NULL) {
+            trav->next->prev = temp; //explain line
+        }
+        trav->next = temp;
+
+        temp->size = trav->size - req;
+        temp->ptr = trav->ptr + req;
+
+        temp->alloc = 0; //why should temp contain 0 - comment
+        trav->alloc = 1; //why should trav contain 1 - comment
+        trav->size = req;
+    }
+    return trav;
+}
+
+struct memoryList *stratBest() {
+    //Assigning two variables to update for the new best size and node
+    best_node_size = -1;
+    best_node = NULL;
+
+    /*
+    * Check whether the current node is not NULL
+    * Check whether the size of the current node is bigger than the request and if the current node has been allocated
+    * If the best_node_size is equal to -1
+    * Assign the size of the current node to the best_node_size
+    * Assign the best_node to the current node
+    * Continue to assign all the non-allocated nodes which are bigger than the request until trav equals NULL
+    */
+    while(trav != NULL) {
+        if(trav->size >= req && trav->alloc == 0) {
+            if (best_node_size == -1) {
+                best_node_size = trav->size;
+                best_node = trav;
+            }
+        }
+        trav = trav->next;
+    }
+
+    //Reassigning trav to best_node since best_node was assigned to trav in above code (keeping the code below identical for each strategy)
+    trav = best_node;
+
+    if(trav == NULL) {
+        return NULL;
+    }
+
+    if(trav->size > req) {
+        temp = malloc(sizeof(struct memoryList));
+        temp->prev = trav; //Assigns the current node to the previous node of temp list
+        temp->next = trav->next; //Assigns the next node of trav list to the next node of temp list
+        if(trav->next != NULL) {
+            trav->next->prev = temp;
+        }
+        trav->next = temp;
+
+        temp->size = trav->size - req;
+        temp->ptr = trav->ptr + req;
+
+        temp->alloc = 0;
+        trav->alloc = 1;
+        trav->size = req;
+    }
+    return trav->ptr;
+}
+
+struct memoryList *stratWorst() {          
+    //Assigning two variables to update for the new best size and node
+    best_node_size = 0;
+    best_node = NULL;
+
+    while(trav != NULL) {
+        if(trav->alloc == 0 && trav->size > best_node_size) {
+            best_node_size = trav->size;
+            best_node = trav;
+        }
+        trav = trav->next;
+    }
+
+    trav = best_node;
+
+    if(trav == NULL) {
+        return NULL;
+    }
+
+    if(trav->size > req) {
+        temp = malloc(sizeof(struct memoryList));
+        temp->prev = trav; //Assigns the current node to the previous node of temp list
+        temp->next = trav->next; //Assigns the next node of trav list to the next node of temp list
+    if(trav->next != NULL) {
+        trav->next->prev = temp;
+    }
+        trav->next = temp;
+
+        temp->size = trav->size - req;
+        temp->ptr = trav->ptr + req;
+
+        temp->alloc = 0;
+        trav->alloc = 1;
+        trav->size = req;
+    }
+    return trav->ptr;
+}
+
+struct memoryList *stratNext() {
+    if(trav->size > req) {
+        temp = malloc(sizeof(struct memoryList));
+        temp->prev = trav; //Assigns the current node to the previous node of temp list
+        temp->next = trav->next; //Assigns the next node of trav list to the next node of temp list
+        if(trav->next != NULL) {
+            trav->next->prev = temp;
+        }
+        trav->next = temp;
+
+        temp->size = trav->size - req;
+        temp->ptr = trav->ptr + req;
+
+        temp->alloc = 0;
+        trav->alloc = 1;
+        trav->size = req;
+    }
+    return trav->ptr;
+}
+
 
 /****** Memory status/property functions ******
  * Implement these functions.
@@ -495,7 +504,7 @@ void print_memory_status()
  * We have given you a simple example to start.
  */
 void try_mymem(int argc, char **argv) {
-        strategies strat;
+    strategies strat;
 	void *a, *b, *c, *d, *e;
 	if(argc > 1)
 	  strat = strategyFromString(argv[1]);
@@ -519,9 +528,4 @@ void try_mymem(int argc, char **argv) {
 	print_memory();
 	print_memory_status();
 	
-}
-
-int main() {
-    try_mymem(First, **b);
-    return 0;
 }
