@@ -65,12 +65,12 @@ void initmem(strategies strategy, size_t sz)
      * For each memory that isn't NULL, will be freed by going to the "next" in the list and free the "prev" in the list
     */
     //struct memoryList *head;
-    struct memoryList *trav;
     
-    while(head != NULL) { 
-        trav = head;
-        head = head->next;
-
+    if(head != NULL) { 
+        struct memoryList *trav;
+        for(trav = head; trav->next != NULL; trav = trav->next) {
+            free(trav->prev);
+        }
         free(trav);
     }
 	myMemory = malloc(sz);
@@ -119,11 +119,11 @@ void *mymalloc(size_t requested)
 	  case Best:
             trav = head;        
             //Assigning two variables to update for the new best size and node
-            best_node_size = -1;
+            best_node_size = 0;
             best_node = NULL;
     
             while(trav != NULL) {
-                if((trav->size >= req) && (trav->alloc == '0') && (best_node_size == -1) || (trav->size < best_node_size)) {
+                if((trav->size >= req) && (trav->alloc == '0') && (best_node_size == 0) || (trav->size < best_node_size)) {
                     best_node_size = trav->size;
                     best_node = trav;
                 }
