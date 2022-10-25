@@ -184,10 +184,6 @@ void *mymalloc(size_t requested)
     trav->alloc = '1';
 
     return trav->ptr;
-
-    
-    //TODO: Merge free blocks, implement blocks logic
-   
 }
 
 
