@@ -179,9 +179,9 @@ void *mymalloc(size_t requested)
         temp->ptr = trav->ptr + req;
 
         temp->alloc = '0';
+        trav->alloc = '1';
         trav->size = req;
     }
-    trav->alloc = '1';
 
     return trav->ptr;
 }
@@ -208,12 +208,12 @@ void myfree(void* block)
     trav->alloc = '0';
 
     if ((trav->prev != NULL) && (trav->prev->alloc == '0')) { //Checking whether the previous node is null or if memory has been allocated, since the node will be used in merging
-        if(next_fit == trav) {
+        /* if(next_fit == trav) {
             next_fit = trav->next;
             if (next_fit == NULL) {
                 next_fit = head;
             }
-        }
+        } */
         trav->prev->size += trav->size; //Adding the size of the current node to the previous node, since the current node will be merged
         temp = trav;
         if (trav->next != NULL) {
@@ -224,50 +224,17 @@ void myfree(void* block)
         free(temp);
     }
     if ((trav->next != NULL) && (trav->next->alloc == '0')) { //Checking whether the next node is null or if memory has been allocated, since the node will be used in merging
-        if (next_fit == trav->next) {
+        /* if (next_fit == trav->next) {
             next_fit = trav;
-        }
-        trav->size += trav->next->size; //Adding the size of the next node to the current node, since the next node will be merged
+        } */
+        trav->prev->size += trav->size; //Adding the size of the next node to the current node, since the next node will be merged
         temp = trav->next;
         if (trav->next->next != NULL) {
             trav->next->next->prev = trav;
         }
         trav->next = trav->next->next;
         free(temp);
-    }
-    //Check is block free
-    /* if(trav->alloc == '1') {
-        bool did_anything = false;
-        //Check is block to the right - then merge 
-        if(trav->next != NULL && trav->next->alloc == '0') { 
-            trav->size += trav->next->size;
-            if(trav->next->next != NULL) {
-                trav->next->next->prev = trav;
-            }
-            trav->next = trav->next->next;
-            trav->alloc = '0';
-            did_anything = true;
-        }
-        
-        //Check is block to the left - merge
-        if(trav->prev != NULL && trav->prev->alloc == '0') {
-            trav->size += trav->prev->size;
-            if(trav->prev->prev != NULL) {
-                trav->prev->prev->next = trav;
-            }
-            trav->prev = trav->prev->prev;
-            trav->alloc = '0';
-            did_anything = true;
-        }
-
-        if (!did_anything) {
-            trav->alloc = '1';
-        }
-        return;
-    }
-    
-     //Remember to update next_fit pointer
-    next_fit = trav->ptr; */
+    } 
 }
 
 
