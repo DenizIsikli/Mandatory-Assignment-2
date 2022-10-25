@@ -105,65 +105,65 @@ void *mymalloc(size_t requested)
 	switch (myStrategy)
 	  {
 	  case NotSet: 
-	            return NULL;
+	        return NULL;
 	  case First:
-        trav = head;
-        while((trav->alloc == '1') || (trav->size < req)) {
-            trav = trav->next;
+            trav = head;
+            while((trav->alloc == '1') || (trav->size < req)) {
+                trav = trav->next;
+                if(trav == NULL) {
+                    return NULL;
+                }
+            }
+            break;
+
+	  case Best:
+            trav = head;        
+            //Assigning two variables to update for the new best size and node
+            best_node_size = -1;
+            best_node = NULL;
+    
+            while(trav != NULL) {
+                if((trav->size >= req) && (trav->alloc == '0') && (best_node_size == -1) || (trav->size < best_node_size)) {
+                    best_node_size = trav->size;
+                    best_node = trav;
+                }
+                trav = trav->next;
+            }
+
+            //Reassigning trav to best_node since best_node was assigned to trav in above code (keeping the code below identical for each strategy)
+            trav = best_node;
+
             if(trav == NULL) {
                 return NULL;
             }
-        }
-        break;
-
-	  case Best:
-        trav = head;        
-        //Assigning two variables to update for the new best size and node
-        best_node_size = -1;
-        best_node = NULL;
- 
-        while(trav != NULL) {
-            if((trav->size >= req) && (trav->alloc == '0') || (trav->size < best_node_size)) {
-                best_node_size = trav->size;
-                best_node = trav;
-            }
-            trav = trav->next;
-        }
-
-        //Reassigning trav to best_node since best_node was assigned to trav in above code (keeping the code below identical for each strategy)
-        trav = best_node;
-
-        if((trav == NULL) || (trav->size < req)) {
-            return NULL;
-        }
-        break;
+            break;
 
 	  case Worst:
-        trav = head;
-        //Assigning two variables to update for the new best size and node
-        best_node_size = 0;
-        best_node = NULL;
+            trav = head;
+            //Assigning two variables to update for the  new best size and node
+            best_node_size = 0;
+            best_node = NULL;
 
-        while(trav != NULL) {
-            if((trav->alloc == '0') && (trav->size > best_node_size)) {
-                best_node_size = trav->size;
-                best_node = trav;
+            while(trav != NULL) {
+                if((trav->alloc == '0') && (trav->size > best_node_size)) {
+                    best_node_size = trav->size;
+                    best_node = trav;
+                }
+                trav = trav->next;
             }
-            trav = trav->next;
-        }
 
-        //Reassigning trav to best_node since best_node was assigned to trav in above code (keeping the code below identical for each strategy)
-        trav = best_node;
+            //Reassigning trav to best_node since best_node was assigned to trav in above code (keeping the code below identical for each strategy)
+            trav = best_node;
 
-        if((trav == NULL) || (trav->size < req)) {
-            return NULL
-        }
-        break;
+            if((trav == NULL) || (trav->size < req)) {
+                return NULL
+            }
+            break;
 
 	  case Next:
-        trav = head;
+            trav = head;
 
-        break;
+            break;
 	} 
 
     if(trav->size > req) {
@@ -207,34 +207,34 @@ void myfree(void* block)
 
     trav->alloc = '0';
 
-    if ((trav->last != NULL) && (trav->last->alloc == 0)) {
+    if ((trav->prev != NULL) && (trav->prev->alloc == '0')) { //Checking whether the previous node is null or if memory has been allocated, since the node will be used in merging
         if(next_fit == trav) {
             next_fit = trav->next;
             if (next_fit == NULL) {
                 next_fit = head;
             }
         }
-        trav->last->size += trav->size;
+        trav->prev->size += trav->size; //Adding the size of the current node to the previous node, since the current node will be merged
         temp = trav;
         if (trav->next != NULL) {
-            trav->next->last = trav->last;
+            trav->next->prev = trav->prev;
         }
-        trav->last->next = trav->next;
-        trav = trav->last;
+        trav->prev->next = trav->next;
+        trav = trav->prev;
         free(temp);
     }
-    if ((trav->next != NULL) && (trav->next->alloc == 0)) {
+    if ((trav->next != NULL) && (trav->next->alloc == '0')) { //Checking whether the next node is null or if memory has been allocated, since the node will be used in merging
         if (next_fit == trav->next) {
             next_fit = trav;
         }
-        trav->size += trav->next->size;
+        trav->size += trav->next->size; //Adding the size of the next node to the current node, since the next node will be merged
         temp = trav->next;
         if (trav->next->next != NULL) {
-            trav->next->next->last = trav;
+            trav->next->next->prev = trav;
         }
         trav->next = trav->next->next;
         free(temp);
-½   }
+    }
     //Check is block free
     /* if(trav->alloc == '1') {
         bool did_anything = false;
@@ -278,7 +278,6 @@ void myfree(void* block)
  */
 
 /* Get the number of contiguous areas of free space in memory. */
-
 /*
  * Creating an Integer for the free spaces
  * Creating a new list
@@ -301,7 +300,6 @@ int mem_holes()
 }
 
 /* Get the number of bytes allocated */
-
 /*
  * Creating an Integer for the allocated bytes
  * Creating a new list
@@ -315,8 +313,8 @@ int mem_allocated()
     int alloced_byte = 0;
 
     while(trav != NULL) {
-        if (trav->alloc == 1) {
-            alloced_byte++;
+        if (trav->alloc == '1') {
+            alloced_byte += trav->size;
         }
         trav = trav->next;
     }
@@ -324,7 +322,6 @@ int mem_allocated()
 }
 
 /* Number of non-allocated bytes */
-
 /*
  * Creating an Integer for the non allocated bytes
  * Creating a new list
@@ -338,7 +335,7 @@ int mem_free()
     int non_alloced_byte = 0;
 
     while(trav != NULL) {
-        if (trav->alloc == 1) {
+        if (trav->alloc == '0') {
             non_alloced_byte += trav->size;
         }
         trav = trav->next;
@@ -347,7 +344,6 @@ int mem_free()
 }
 
 /* Number of bytes in the largest contiguous area of unallocated memory */
-
 /*
  * Creating an Integer for the max byte
  * Creating a new list
@@ -362,7 +358,7 @@ int mem_largest_free()
     int max_byte = 0;
 
     while(trav != NULL) {
-        if (trav->alloc == 0 && trav->size > max_byte) {
+        if (trav->alloc == '0' && trav->size > max_byte) {
             max_byte = trav->size;
         }
         trav = trav->next;
@@ -371,7 +367,6 @@ int mem_largest_free()
 }
 
 /* Number of free blocks smaller than "size" bytes. */
-
 /*
  * Creating an Integer for the non allocated blocks that are smaller than the size parameter
  * Creating a new list
@@ -386,7 +381,7 @@ int mem_small_free(int size)
     int non_alloced_blocks_smaller = 0;
 
     while(trav != NULL) {
-        if (trav->alloc == 0 && trav->size <= size) {
+        if (trav->alloc == '0' && trav->size <= size) {
             non_alloced_blocks_smaller++;
         }
         trav = trav->next;
