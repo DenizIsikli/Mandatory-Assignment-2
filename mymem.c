@@ -92,11 +92,7 @@ void *mymalloc(size_t requested)
 
     struct memoryList *trav, *temp, *best_node;
     int best_node_size;
-
-    if(trav == NULL) {
-        return;
-    }
-
+    
 	switch (myStrategy)
 	  {
 	  case NotSet: 
@@ -151,7 +147,7 @@ void *mymalloc(size_t requested)
             trav = best_node;
 
             if((trav == NULL) || (trav->size < req)) {
-                return NULL
+                return NULL;
             }
             break;
 
@@ -476,7 +472,7 @@ void try_mymem(int argc, char **argv) {
 }
 
 /* basic sequential allocation of single byte blocks */
-int test_alloc_1(int argc, char **argv) {
+int test_alloc_12(int argc, char **argv) {
 	strategies strategy;
 	int lbound = 1;
 	int ubound = 4;
@@ -527,9 +523,8 @@ int test_alloc_1(int argc, char **argv) {
 	return 0;
 }
 
-char* dummy_args[] = { "dummyargs",  NULL }
+char* dummy_args[] = { "first",  NULL };
 
 int main() {
-    test_alloc_1(1, "dummyargs");
-    return 0;
+    test_alloc_12(1, dummy_args);
 }
