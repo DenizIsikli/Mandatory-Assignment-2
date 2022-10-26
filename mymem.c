@@ -31,11 +31,6 @@ void *myMemory = NULL;
 static struct memoryList *head;
 static struct memoryList *next_fit;
 
-struct memoryList *stratFirst();
-struct memoryList *stratBest();
-struct memoryList *stratWorst();
-struct memoryList *stratNext();
-
 /* initmem must be called prior to mymalloc and myfree.
 
    initmem may be called more than once in a given exeuction;
@@ -359,7 +354,7 @@ int mem_small_free(int size)
 
 char mem_is_alloc(void *ptr)
 {
-        return 0;
+    return 0;
 }
 
 /* 
@@ -532,7 +527,9 @@ int test_alloc_1(int argc, char **argv) {
 	return 0;
 }
 
+char* dummy_args[] = { "dummyargs",  NULL }
+
 int main() {
-    test_alloc_1(1, )
+    test_alloc_1(1, "dummyargs");
     return 0;
 }
