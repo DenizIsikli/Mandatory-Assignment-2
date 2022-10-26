@@ -59,8 +59,6 @@ void initmem(strategies strategy, size_t sz)
      * Creating a new list
      * For each memory that isn't NULL, will be freed by going to the "next" in the list and free the "prev" in the list
     */
-    //struct memoryList *head;
-
     if(head != NULL) {
         struct memoryList *trav;
         for(trav = head; trav->next != NULL; trav = trav->next) {
@@ -71,12 +69,12 @@ void initmem(strategies strategy, size_t sz)
     myMemory = malloc(sz);
 
     /* TODO: Initialize memory management structure. */
-    next_fit = head = malloc(sizeof(struct memoryList));
+    head = malloc(sizeof(struct memoryList));
+    next_fit = head;
     head->size = sz;
     head->ptr = myMemory;
     head->alloc = '0';
-    head->prev = NULL;
-    head->next = NULL;
+    head->prev = head->next = NULL;
 }
 
 /* Allocate a block of memory with the requested size.
@@ -101,10 +99,11 @@ void *mymalloc(size_t requested)
             trav = head;
             while((trav->alloc == '1') || (trav->size < req)) {
                 trav = trav->next;
-                if(trav == NULL) {
-                    return NULL;
-                }
+//                if(trav == NULL) {
+//                    return NULL;
+//                }
             }
+
             break;
 
         case Best:
@@ -124,9 +123,6 @@ void *mymalloc(size_t requested)
             //Reassigning trav to best_node since best_node was assigned to trav in above code (keeping the code below identical for each strategy)
             trav = best_node;
 
-            if(trav == NULL) {
-                return NULL;
-            }
             break;
 
         case Worst:
@@ -146,13 +142,27 @@ void *mymalloc(size_t requested)
             //Reassigning trav to best_node since best_node was assigned to trav in above code (keeping the code below identical for each strategy)
             trav = best_node;
 
-            if((trav == NULL) || (trav->size < req)) {
-                return NULL;
-            }
             break;
 
         case Next:
-            trav = head;
+            trav = next_fit;
+
+            while(trav != NULL) {
+                if ((trav->alloc == '0') && (trav->size >= req)) {
+                    trav = trav->next;
+                }
+            }
+            if(trav == NULL) {
+                trav = head;
+                while(trav != next_fit) {
+                    if ((trav->alloc == '0') && (trav->size > req)) {
+                        trav = trav->next;
+                    }
+                }
+                if(trav == next_fit) {
+                    return NULL;
+                }
+            }
 
             break;
     }
@@ -170,9 +180,11 @@ void *mymalloc(size_t requested)
         temp->ptr = trav->ptr + req;
 
         temp->alloc = '0';
-        trav->alloc = '1';
         trav->size = req;
     }
+
+    trav->alloc = '1';
+
     return trav->ptr;
 }
 
