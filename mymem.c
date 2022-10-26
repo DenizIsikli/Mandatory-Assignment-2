@@ -523,8 +523,3 @@ int test_alloc_12(int argc, char **argv) {
 	return 0;
 }
 
-char* dummy_args[] = { "first",  NULL };
-
-int main() {
-    test_alloc_12(1, dummy_args);
-}
