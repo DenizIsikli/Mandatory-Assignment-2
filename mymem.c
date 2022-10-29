@@ -18,7 +18,7 @@ struct memoryList
 
     int size;            // How many bytes in this block?
     char alloc;          // 1 if this block is allocated,
-    // 0 if this block is free.
+                         // 0 if this block is free.
     void *ptr;           // location of block in memory pool.
 };
 
