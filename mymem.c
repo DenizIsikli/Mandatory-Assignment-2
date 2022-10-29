@@ -99,9 +99,6 @@ void *mymalloc(size_t requested)
             trav = head;
             while((trav->alloc == '1') || (trav->size < req)) {
                 trav = trav->next;
-//                if(trav == NULL) {
-//                    return NULL;
-//                }
             }
 
             break;
