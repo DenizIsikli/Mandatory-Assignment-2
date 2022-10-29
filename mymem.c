@@ -195,9 +195,6 @@ void myfree(void* block)
     //Check does block exist
     while(trav->ptr != ptr) {
         trav = trav->next;
-        if(trav == NULL) {
-            return;
-        }
     }
 
     trav->alloc = '0';
@@ -345,7 +342,12 @@ int mem_small_free(int size)
 
 char mem_is_alloc(void *ptr)
 {
-    return 0;
+    if(ptr < myMemory || ptr > myMemory + mySize) {
+        return 0;
+    }
+    struct memoryList *trav;
+    for(trav = head; ptr >= trav->ptr + trav->size; trav = trav->next);
+    return trav->alloc;
 }
 
 /*
