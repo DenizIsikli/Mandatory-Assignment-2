@@ -164,8 +164,12 @@ void *mymalloc(size_t requested)
             break;
     }
 
+    if(!trav) {
+        return NULL;
+    }
+
     if(trav->size > req) {
-        temp = malloc(sizeof(struct memoryList));
+        struct memoryList* temp = malloc(sizeof(struct memoryList));
         temp->prev = trav; //Assigns the current node to the previous node of temp list
         temp->next = trav->next; //Assigns the next node of trav list to the next node of temp list
         if(trav->next != NULL) {
@@ -175,8 +179,8 @@ void *mymalloc(size_t requested)
 
         temp->size = trav->size - req;
         temp->ptr = trav->ptr + req;
-
         temp->alloc = '0';
+
         trav->size = req;
     }
 
@@ -264,7 +268,7 @@ int mem_allocated()
 
     while(trav != NULL) {
         if (trav->alloc == '1') {
-            alloced_byte += trav->size;
+            alloced_byte++;
         }
         trav = trav->next;
     }
@@ -347,6 +351,7 @@ char mem_is_alloc(void *ptr)
     }
     struct memoryList *trav;
     for(trav = head; ptr >= trav->ptr + trav->size; trav = trav->next);
+
     return trav->alloc;
 }
 
