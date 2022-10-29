@@ -340,7 +340,6 @@ int mem_small_free(int size)
         }
         trav = trav->next;
     }
-
     return non_alloced_blocks_smaller;
 }
 
